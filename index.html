@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TurnoYa · Reservas Online</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4F46E5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="TurnoYa" />
+  <link rel="apple-touch-icon" href="logo.svg" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+
+<body>
+  <!--  HOME -->
+  <div id="view-home" class="view active">
+
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="navbar-brand">
+        <img class="navbar-logo" src="logo.svg" alt="TurnoYa" />
+        <span class="navbar-appname">TurnoYa</span>
+      </div>
+      <!-- El link de Maps y la dirección se setean desde CONFIG en app.js -->
+      <a href="#" id="maps-btn" target="_blank" class="maps-btn">
+        <span class="maps-pin">📍</span>
+        <div class="maps-btn-text">
+          <strong id="maps-address">Ver ubicación</strong>
+          <span>Ver en Maps →</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-headline">RESERVÁ<br />TU <em>TURNO</em></div>
+      <div class="hero-sub">Sin llamadas · Sin esperas · Desde tu celular</div>
+    </div>
+
+    <!-- Ticker -->
+    <div class="ticker">
+      <div class="ticker-inner">
+        <span>TURNOYA &nbsp;·&nbsp; RESERVAS ONLINE &nbsp;·&nbsp; SIN ESPERAS &nbsp;·&nbsp; CONFIRMACIÓN INSTANTÁNEA &nbsp;·&nbsp; DISPONIBLE 24/7 &nbsp;·&nbsp; CANCELÁ CUANDO QUIERAS &nbsp;·&nbsp; TURNOYA &nbsp;·&nbsp; RESERVAS ONLINE &nbsp;·&nbsp; SIN ESPERAS &nbsp;·&nbsp;</span>
+        <span>TURNOYA &nbsp;·&nbsp; RESERVAS ONLINE &nbsp;·&nbsp; SIN ESPERAS &nbsp;·&nbsp; CONFIRMACIÓN INSTANTÁNEA &nbsp;·&nbsp; DISPONIBLE 24/7 &nbsp;·&nbsp; CANCELÁ CUANDO QUIERAS &nbsp;·&nbsp; TURNOYA &nbsp;·&nbsp; RESERVAS ONLINE &nbsp;·&nbsp; SIN ESPERAS &nbsp;·&nbsp;</span>
+      </div>
+    </div>
+
+    <!-- Cards de servicios -->
+    <div class="sports-wrap">
+      <div class="section-label">¿Qué querés reservar?</div>
+
+      <!-- Servicio 1 — contenido se carga desde CONFIG en app.js -->
+      <div class="sport-card s1" onclick="selectSport('s1')">
+        <div class="sport-icon-wrap" id="sport-icon-s1">🏷</div>
+        <div class="sport-card-body">
+          <div class="sport-name" id="sport-name-s1">Servicio A</div>
+          <div class="sport-meta" id="sport-meta-s1"></div>
+          <div id="avail-s1" class="avail-badge"></div>
+        </div>
+        <div class="sport-arrow">›</div>
+      </div>
+
+      <!-- Servicio 2 -->
+      <div class="sport-card s2" onclick="selectSport('s2')">
+        <div class="sport-icon-wrap" id="sport-icon-s2">🏷</div>
+        <div class="sport-card-body">
+          <div class="sport-name" id="sport-name-s2">Servicio B</div>
+          <div class="sport-meta" id="sport-meta-s2"></div>
+          <div id="avail-s2" class="avail-badge"></div>
+        </div>
+        <div class="sport-arrow">›</div>
+      </div>
+
+      <div class="divider-line"></div>
+
+      <button class="secondary-card" onclick="goTo('view-mis-turnos')">
+        <div class="sc-icon">📋</div>
+        <div>
+          <div class="sc-title">Mis reservas</div>
+          <div class="sc-sub" id="home-bk-count">Sin turnos próximos</div>
+        </div>
+        <div class="sc-arr">›</div>
+      </button>
+
+      <!-- ══ HORARIOS ══════════════════════════════════
+           Editá los horarios aquí para que coincidan
+           con los valores de HORARIOS en app.js
+      ══════════════════════════════════════════════ -->
+      <div class="section-label mt-4">Horarios de atención</div>
+      <div class="horarios-card">
+        <div class="club-status-row">
+          <div id="club-status-dot" class="club-dot"></div>
+          <span id="club-status-text" class="club-status-text"></span>
+        </div>
+        <div class="horarios-row"><span>Lun a Vie</span><span>08:00 – 22:00</span></div>
+        <div class="horarios-row"><span>Sábados</span><span>08:00 – 20:00</span></div>
+        <div class="horarios-row"><span>Domingos</span><span>09:00 – 18:00</span></div>
+      </div>
+    </div>
+
+  </div><!-- fin #view-home -->
+
+  <!--  GRILLA DE TURNOS -->
+  <div id="view-grid" class="view">
+    <div class="page-header" id="grid-header">
+      <button class="back-btn" onclick="goTo('view-home')">← Inicio</button>
+      <div class="page-title" id="grid-title">Servicio</div>
+      <div class="page-sub" id="grid-sub"></div>
+      <div class="date-strip">
+        <button class="nav-btn" onclick="shiftWeek(-1)">‹</button>
+        <div class="days-scroll" id="days-scroll"></div>
+        <button class="nav-btn" onclick="shiftWeek(1)">›</button>
+      </div>
+      <div class="sel-date-label" id="sel-date-label"></div>
+    </div>
+    <div class="grid-wrap">
+      <div class="grid-inner" id="grid-inner"></div>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot avail"></div> Disponible
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot na"></div> Reservado / Pasado
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--  LOGIN -->
+  <div id="view-login" class="view">
+    <div class="page-header">
+      <button class="back-btn" onclick="goTo('view-home')">← Volver</button>
+      <div class="page-title">Iniciar Sesión</div>
+    </div>
+    <div class="form-wrap">
+      <div class="login-instructions">
+        Ingresá tu correo para recibir un código seguro de 8 dígitos.
+      </div>
+
+      <div id="login-step-1">
+        <label class="field-label">Tu Email</label>
+        <input class="field-input" id="client-email" type="email" placeholder="ejemplo@correo.com" />
+        <button class="btn-primary green" onclick="sendOTP()">ENVIAR CÓDIGO</button>
+      </div>
+
+      <div id="login-step-2" class="hidden">
+        <label class="field-label">Código de 6 dígitos</label>
+        <input class="field-input" id="client-otp" type="text" placeholder="123456" inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
+        <button class="btn-primary green" onclick="verifyOTP()">VERIFICAR Y ENTRAR</button>
+        <button class="btn-primary outline mt-4" onclick="resetLogin()">Usar otro correo</button>
+      </div>
+
+      <div class="form-legal mt-4" id="login-msg"></div>
+    </div>
+  </div>
+
+  <!--  FORMULARIO DE RESERVA -->
+  <div id="view-form" class="view">
+    <div class="page-header">
+      <button class="back-btn" onclick="goTo('view-grid')">← Volver</button>
+      <div class="page-title">Confirmá tu turno</div>
+    </div>
+    <div class="form-wrap">
+      <div class="summary-card" id="summary-card">
+        <div class="summary-label" id="summary-label"></div>
+        <div class="summary-grid" id="summary-grid"></div>
+      </div>
+      <label class="field-label" for="inp-name">Nombre y apellido</label>
+      <input class="field-input" id="inp-name" type="text" placeholder="Ej: Juan Pérez" oninput="checkForm()" />
+      <label class="field-label" for="inp-phone">Teléfono / WhatsApp</label>
+      <input class="field-input" id="inp-phone" type="tel" placeholder="Ej: 2494 123456" oninput="checkForm()" />
+      <label class="field-label" for="inp-email">Email</label>
+      <input class="field-input" id="inp-email" type="email" placeholder="Ej: juan@gmail.com" oninput="checkForm()" />
+      <!-- REPETIR RESERVA -->
+      <div class="repeat-section">
+        <div class="repeat-toggle-row">
+          <div>
+            <div class="repeat-label">Repetir reserva</div>
+            <div class="repeat-sub">Reservá el mismo turno varias semanas seguidas</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="repeat-toggle" onchange="toggleRepeat()" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div id="repeat-options" class="hidden">
+          <div class="repeat-weeks-row">
+            <span class="repeat-weeks-label">¿Cuántas semanas más?</span>
+            <select id="repeat-weeks" class="repeat-select" onchange="updateRepeatPreview()">
+              <option value="1">+ 1 semana</option>
+              <option value="2">+ 2 semanas</option>
+              <option value="3">+ 3 semanas</option>
+              <option value="4">+ 4 semanas</option>
+            </select>
+          </div>
+          <div id="repeat-preview" class="repeat-preview"></div>
+        </div>
+      </div>
+
+      <button class="btn-primary green" id="btn-confirm" disabled onclick="confirmBooking()">CONFIRMAR RESERVA</button>
+      <div class="form-legal">Al confirmar aceptás las condiciones de uso.</div>
+    </div>
+  </div>
+
+  <!--  CONFIRMACIÓN -->
+  <div id="view-ok" class="view">
+    <div class="ok-hero">
+      <img class="ok-logo" src="logo.svg" alt="TurnoYa" />
+      <div class="ok-tag">Reserva confirmada</div>
+    </div>
+    <div class="ok-body">
+      <div class="ok-circle">✓</div>
+      <div class="ok-title">¡LISTO!</div>
+      <div class="ok-sub">Tu turno quedó reservado. Te esperamos.</div>
+      <div class="confirm-table" id="confirm-table"></div>
+      <div class="btn-row">
+        <button class="btn-primary outline flex-1" onclick="goTo('view-home'); setSport(null)">Inicio</button>
+        <button class="btn-primary green flex-2" onclick="goTo('view-mis-turnos')">VER MIS TURNOS</button>
+      </div>
+      <button class="btn-primary btn-wsp" onclick="shareWhatsApp()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        COMPARTIR POR WHATSAPP
+      </button>
+      <div class="cal-btns">
+        <button class="btn-cal" onclick="addToGoogleCalendar()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Google Calendar
+        </button>
+        <button class="btn-cal secondary" onclick="downloadICS()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar .ics
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!--  MIS TURNOS -->
+  <div id="view-mis-turnos" class="view">
+    <div class="page-header">
+      <button class="back-btn" onclick="goTo('view-home')">← Inicio</button>
+      <div class="page-title">Mis turnos</div>
+      <div class="page-sub" id="mis-sub"></div>
+    </div>
+    <div class="bookings-wrap" id="bookings-wrap"></div>
+  </div>
+
+  <!-- PWA INSTALL BANNER -->
+  <div id="pwa-banner" class="pwa-banner hidden">
+    <div class="pwa-banner-left">
+      <img src="logo.svg" class="pwa-banner-logo" alt="" />
+      <div>
+        <div class="pwa-banner-title">Instalá TurnoYa</div>
+        <div class="pwa-banner-sub">Acceso rápido desde tu pantalla de inicio</div>
+      </div>
+    </div>
+    <div class="pwa-banner-actions">
+      <button class="pwa-btn-install" onclick="installPWA()">Instalar</button>
+      <button class="pwa-btn-close" onclick="dismissPWA()">✕</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+
+</html>
