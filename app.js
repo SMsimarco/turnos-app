@@ -792,11 +792,21 @@ async function verifyOTP() {
 
   document.getElementById('login-msg').textContent = 'Verificando...';
 
-  const { data, error } = await sb.auth.verifyOtp({
+  let data, error;
+  ({ data, error } = await sb.auth.verifyOtp({
     email: currentLoginEmail,
     token,
     type: 'email'
-  });
+  }));
+
+  // fallback: algunos proyectos usan type magiclink
+  if (error) {
+    ({ data, error } = await sb.auth.verifyOtp({
+      email: currentLoginEmail,
+      token,
+      type: 'magiclink'
+    }));
+  }
 
   if (error) {
     document.getElementById('login-msg').textContent = error.message || 'Código incorrecto o expirado.';
